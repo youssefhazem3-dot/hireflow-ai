@@ -43,11 +43,17 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
         method: "POST",
         body: formData,
       });
-      const payload = (await response.json()) as {
-        success?: boolean;
-        candidate_id?: number;
-        message?: string;
-      };
+      const contentType = response.headers.get("content-type") ?? "";
+      const payload = contentType.includes("application/json")
+        ? ((await response.json()) as {
+            success?: boolean;
+            candidate_id?: number;
+            message?: string;
+          })
+        : {
+            success: false,
+            message: `Server returned ${response.status}. Please try again.`,
+          };
 
       if (!response.ok || !payload.success || !payload.candidate_id) {
         throw new Error(payload.message ?? "Could not submit application.");

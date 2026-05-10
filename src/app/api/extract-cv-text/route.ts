@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const cvText = await extractPdfText(await response.arrayBuffer());
+    const cvText = await extractPdfText(await response.arrayBuffer(), body.cv_file_url);
 
     return NextResponse.json({
       success: true,
