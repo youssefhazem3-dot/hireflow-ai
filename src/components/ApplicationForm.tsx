@@ -14,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { saveLocalCandidate } from "@/lib/local-candidates";
+import type { CandidateRecord } from "@/lib/types";
 import type { Job } from "@/lib/types";
 
 type ApplicationFormProps = {
@@ -47,9 +49,10 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
       const payload = contentType.includes("application/json")
         ? ((await response.json()) as {
             success?: boolean;
-            candidate_id?: number;
-            message?: string;
-          })
+          candidate_id?: number;
+          candidate?: CandidateRecord | null;
+          message?: string;
+        })
         : {
             success: false,
             message: `Server returned ${response.status}. Please try again.`,
@@ -57,6 +60,10 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
 
       if (!response.ok || !payload.success || !payload.candidate_id) {
         throw new Error(payload.message ?? "Could not submit application.");
+      }
+
+      if (payload.candidate) {
+        saveLocalCandidate(payload.candidate);
       }
 
       router.push(`/application-success?id=${payload.candidate_id}`);

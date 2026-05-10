@@ -112,6 +112,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       candidate_id: result.candidate_id,
+      candidate: result.candidate,
       message: "Application submitted successfully",
       source: result.source,
     });

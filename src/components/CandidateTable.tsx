@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ArrowUpDown, Download, Search } from "lucide-react";
 
@@ -15,6 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  getLocalCandidatesSnapshot,
+  getServerLocalCandidatesSnapshot,
+  subscribeLocalCandidates,
+} from "@/lib/local-candidates";
 import type { CandidateRecord, CandidateStatus } from "@/lib/types";
 import { formatDate, scoreTone, statusClasses, toCsvValue } from "@/lib/utils";
 
@@ -36,16 +41,29 @@ export function CandidateTable({ records }: CandidateTableProps) {
   const [status, setStatus] = useState<CandidateStatus | "All">("All");
   const [position, setPosition] = useState("All");
   const [sortKey, setSortKey] = useState<"date" | "match">("match");
+  const localRecords = useSyncExternalStore(
+    subscribeLocalCandidates,
+    getLocalCandidatesSnapshot,
+    getServerLocalCandidatesSnapshot,
+  );
+
+  const allRecords = useMemo(() => {
+    const recordIds = new Set(localRecords.map((record) => record.id));
+    return [
+      ...localRecords,
+      ...records.filter((record) => !recordIds.has(record.id)),
+    ];
+  }, [localRecords, records]);
 
   const positions = useMemo(
-    () => ["All", ...Array.from(new Set(records.map((record) => record.position)))],
-    [records],
+    () => ["All", ...Array.from(new Set(allRecords.map((record) => record.position)))],
+    [allRecords],
   );
 
   const filteredRecords = useMemo(() => {
     const normalizedQuery = query.toLowerCase();
 
-    return records
+    return allRecords
       .filter((record) => {
         const matchesQuery =
           record.full_name.toLowerCase().includes(normalizedQuery) ||
@@ -71,7 +89,7 @@ export function CandidateTable({ records }: CandidateTableProps) {
           (second.analysis?.match_score ?? 0) - (first.analysis?.match_score ?? 0)
         );
       });
-  }, [position, query, records, sortKey, status]);
+  }, [allRecords, position, query, sortKey, status]);
 
   function exportCsv() {
     const header = [

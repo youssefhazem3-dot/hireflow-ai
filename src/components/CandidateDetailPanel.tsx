@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { CandidateRecord, CandidateStatus } from "@/lib/types";
+import { updateLocalCandidateStatus } from "@/lib/local-candidates";
 import {
   formatDate,
   recommendationClasses,
@@ -59,6 +60,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
         throw new Error(payload.message ?? "Could not update status.");
       }
 
+      updateLocalCandidateStatus(record.id, status);
       setMessage("Status updated successfully.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not update status.");

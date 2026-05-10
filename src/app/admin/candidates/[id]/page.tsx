@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { AppNav } from "@/components/AppNav";
 import { CandidateDetailPanel } from "@/components/CandidateDetailPanel";
+import { LocalCandidateDetailFallback } from "@/components/LocalCandidateDetailFallback";
 import { getCandidateRecord } from "@/lib/candidates";
 
 type CandidateDetailsPageProps = {
@@ -16,10 +16,6 @@ export default async function CandidateDetailsPage({
   const { id } = await params;
   const record = await getCandidateRecord(Number(id));
 
-  if (!record) {
-    notFound();
-  }
-
   return (
     <main className="min-h-screen bg-background">
       <AppNav />
@@ -31,7 +27,11 @@ export default async function CandidateDetailsPage({
           <ArrowLeft className="h-4 w-4" />
           Back to candidates
         </Link>
-        <CandidateDetailPanel record={record} />
+        {record ? (
+          <CandidateDetailPanel record={record} />
+        ) : (
+          <LocalCandidateDetailFallback candidateId={Number(id)} />
+        )}
       </section>
     </main>
   );

@@ -132,8 +132,39 @@ export async function createCandidateApplication(input: CandidateApplicationInpu
   const supabase = getSupabaseAdmin();
 
   if (!supabase) {
+    const candidateId = Math.floor(1000 + Date.now() / 1000);
+    const createdAt = new Date().toISOString();
+
     return {
-      candidate_id: Math.floor(1000 + Date.now() / 1000),
+      candidate_id: candidateId,
+      candidate: {
+        id: candidateId,
+        full_name: input.full_name,
+        email: input.email,
+        phone: input.phone || null,
+        linkedin_url: input.linkedin_url || null,
+        portfolio_url: input.portfolio_url || null,
+        position: input.position,
+        cv_file_url: input.cv_file_url || null,
+        status: "Pending",
+        created_at: createdAt,
+        analysis: {
+          id: candidateId,
+          candidate_id: candidateId,
+          job_id: job.id,
+          ...analysis,
+          created_at: createdAt,
+        },
+        logs: [
+          {
+            id: candidateId,
+            candidate_id: candidateId,
+            action: "Application Submitted",
+            details: `Candidate applied for ${input.position}.`,
+            created_at: createdAt,
+          },
+        ],
+      } satisfies CandidateRecord,
       analysis,
       source: "demo",
     };
@@ -188,6 +219,7 @@ export async function createCandidateApplication(input: CandidateApplicationInpu
 
   return {
     candidate_id: savedCandidate.id,
+    candidate: null,
     analysis,
     source: "supabase",
   };
