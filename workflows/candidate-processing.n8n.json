@@ -1,0 +1,210 @@
+{
+  "name": "HireFlow AI - Candidate Application Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hireflow/candidate-application",
+        "responseMode": "responseNode"
+      },
+      "id": "candidate-webhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{$json.full_name}}", "operation": "isNotEmpty" },
+            { "value1": "={{$json.email}}", "operation": "isNotEmpty" },
+            { "value1": "={{$json.position}}", "operation": "isNotEmpty" },
+            { "value1": "={{$json.cv_file_url}}", "operation": "isNotEmpty" }
+          ]
+        }
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.NEXT_PUBLIC_APP_URL}}/api/extract-cv-text",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "cv_file_url", "value": "={{$json.cv_file_url}}" }
+          ]
+        }
+      },
+      "id": "extract-cv-text",
+      "name": "Extract Text From PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, -100]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, description, required_skills, experience_level FROM jobs WHERE title = $1 LIMIT 1;",
+        "additionalFields": {
+          "queryParams": "={{[$json.position]}}"
+        }
+      },
+      "id": "get-job-description",
+      "name": "Get Job Description",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [760, -100],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.NEXT_PUBLIC_APP_URL}}/api/ai/analyze-cv",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "cv_text", "value": "={{$('Extract Text From PDF').item.json.cv_text || $json.cv_text}}" },
+            { "name": "job_description", "value": "={{$json.description}}" }
+          ]
+        }
+      },
+      "id": "ai-analysis",
+      "name": "AI CV Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1020, -100]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO candidates (full_name, email, phone, linkedin_url, portfolio_url, position, cv_file_url, status) VALUES ($1,$2,$3,$4,$5,$6,$7,'Pending') RETURNING id;",
+        "additionalFields": {
+          "queryParams": "={{[$json.full_name,$json.email,$json.phone,$json.linkedin_url,$json.portfolio_url,$json.position,$json.cv_file_url]}}"
+        }
+      },
+      "id": "save-candidate",
+      "name": "Save Candidate",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1280, -100],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO candidate_analysis (candidate_id, job_id, extracted_skills, experience_level, education_summary, cv_summary, strengths, weaknesses, ats_score, match_score, recommendation, suggested_email) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);",
+        "additionalFields": {
+          "queryParams": "={{[$('Save Candidate').item.json.id,$('Get Job Description').item.json.id,$('AI CV Analysis').item.json.analysis.extracted_skills,$('AI CV Analysis').item.json.analysis.experience_level,$('AI CV Analysis').item.json.analysis.education_summary,$('AI CV Analysis').item.json.analysis.cv_summary,$('AI CV Analysis').item.json.analysis.strengths,$('AI CV Analysis').item.json.analysis.weaknesses,$('AI CV Analysis').item.json.analysis.ats_score,$('AI CV Analysis').item.json.analysis.match_score,$('AI CV Analysis').item.json.analysis.recommendation,$('AI CV Analysis').item.json.analysis.suggested_email]}}"
+        }
+      },
+      "id": "save-analysis",
+      "name": "Save AI Analysis",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1540, -100],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json.email}}",
+        "subject": "Application received - {{$json.position}}",
+        "text": "Hello {{$json.full_name}},\n\nThank you for applying for the {{$json.position}} role.\n\nYour application has been received successfully and will be reviewed soon.\n\nBest regards,\nHireFlow AI Team"
+      },
+      "id": "confirmation-email",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1800, -180],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$env.ADMIN_EMAIL}}",
+        "subject": "Strong candidate detected",
+        "text": "Strong candidate detected.\n\nCandidate: {{$json.full_name}}\nPosition: {{$json.position}}\nMatch Score: {{$('AI CV Analysis').item.json.analysis.match_score}}%\nRecommendation: {{$('AI CV Analysis').item.json.analysis.recommendation}}"
+      },
+      "id": "notify-admin",
+      "name": "Notify Admin",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1800, -20],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, candidate_id: $('Save Candidate').item.json.id, message: 'Application submitted successfully' } }}"
+      },
+      "id": "return-response",
+      "name": "Return Response To Website",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2060, -100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
+    },
+    "Validate Input": {
+      "main": [[{ "node": "Extract Text From PDF", "type": "main", "index": 0 }]]
+    },
+    "Extract Text From PDF": {
+      "main": [[{ "node": "Get Job Description", "type": "main", "index": 0 }]]
+    },
+    "Get Job Description": {
+      "main": [[{ "node": "AI CV Analysis", "type": "main", "index": 0 }]]
+    },
+    "AI CV Analysis": {
+      "main": [[{ "node": "Save Candidate", "type": "main", "index": 0 }]]
+    },
+    "Save Candidate": {
+      "main": [[{ "node": "Save AI Analysis", "type": "main", "index": 0 }]]
+    },
+    "Save AI Analysis": {
+      "main": [
+        [
+          { "node": "Send Confirmation Email", "type": "main", "index": 0 },
+          { "node": "Notify Admin", "type": "main", "index": 0 },
+          { "node": "Return Response To Website", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

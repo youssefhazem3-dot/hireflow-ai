@@ -1,0 +1,113 @@
+{
+  "name": "HireFlow AI - Daily Recruitment Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(*) AS total_applications, COUNT(*) FILTER (WHERE status IN ('Shortlisted','Interview','Hired')) AS shortlisted, COUNT(*) FILTER (WHERE status = 'Rejected') AS rejected FROM candidates;"
+      },
+      "id": "candidate-counts",
+      "name": "Count Applications",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [260, 0],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ROUND(AVG(match_score)) AS average_match_score FROM candidate_analysis WHERE created_at::date = CURRENT_DATE;"
+      },
+      "id": "average-score",
+      "name": "Average Match Score",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [520, 0],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "sendBody": true,
+        "jsonBody": "={\"model\":\"gpt-4o-mini\",\"messages\":[{\"role\":\"system\",\"content\":\"Summarize recruitment quality in one concise paragraph.\"},{\"role\":\"user\",\"content\":\"Total applications: {{$('Count Applications').item.json.total_applications}}. Shortlisted: {{$('Count Applications').item.json.shortlisted}}. Rejected: {{$('Count Applications').item.json.rejected}}. Average match score: {{$('Average Match Score').item.json.average_match_score}}%.\"}]}"
+      },
+      "id": "ai-summary",
+      "name": "AI Recruitment Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OPENAI_API_KEY",
+          "name": "OpenAI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$env.ADMIN_EMAIL}}",
+        "subject": "Daily Recruitment Report",
+        "text": "Daily Recruitment Report\n\nTotal Applications: {{$('Count Applications').item.json.total_applications}}\nShortlisted: {{$('Count Applications').item.json.shortlisted}}\nRejected: {{$('Count Applications').item.json.rejected}}\nAverage Match Score: {{$('Average Match Score').item.json.average_match_score}}%\n\nAI Summary:\n{{$('AI Recruitment Summary').item.json.choices[0].message.content}}"
+      },
+      "id": "send-report",
+      "name": "Send Daily Report",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1040, 0],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger 9 AM": {
+      "main": [[{ "node": "Count Applications", "type": "main", "index": 0 }]]
+    },
+    "Count Applications": {
+      "main": [[{ "node": "Average Match Score", "type": "main", "index": 0 }]]
+    },
+    "Average Match Score": {
+      "main": [[{ "node": "AI Recruitment Summary", "type": "main", "index": 0 }]]
+    },
+    "AI Recruitment Summary": {
+      "main": [[{ "node": "Send Daily Report", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

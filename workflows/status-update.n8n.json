@@ -1,0 +1,100 @@
+{
+  "name": "HireFlow AI - Candidate Status Update",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hireflow/status-update",
+        "responseMode": "responseNode"
+      },
+      "id": "status-webhook",
+      "name": "Status Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{$json.candidate_id}}", "operation": "isNotEmpty" },
+            { "value1": "={{$json.status}}", "operation": "isNotEmpty" }
+          ]
+        }
+      },
+      "id": "validate-status",
+      "name": "Validate Candidate ID and Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE candidates SET status = $1 WHERE id = $2;",
+        "additionalFields": {
+          "queryParams": "={{[$json.status,$json.candidate_id]}}"
+        }
+      },
+      "id": "update-candidate",
+      "name": "Update Candidate Record",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [520, -80],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO candidate_logs (candidate_id, action, details) VALUES ($1, 'Status Updated', $2);",
+        "additionalFields": {
+          "queryParams": "={{[$json.candidate_id, 'Candidate status changed to ' + $json.status]}}"
+        }
+      },
+      "id": "add-log",
+      "name": "Add Candidate Log",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [780, -80],
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, message: 'Status updated successfully' } }}"
+      },
+      "id": "return-success",
+      "name": "Return Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1040, -80]
+    }
+  ],
+  "connections": {
+    "Status Webhook": {
+      "main": [[{ "node": "Validate Candidate ID and Status", "type": "main", "index": 0 }]]
+    },
+    "Validate Candidate ID and Status": {
+      "main": [[{ "node": "Update Candidate Record", "type": "main", "index": 0 }]]
+    },
+    "Update Candidate Record": {
+      "main": [[{ "node": "Add Candidate Log", "type": "main", "index": 0 }]]
+    },
+    "Add Candidate Log": {
+      "main": [[{ "node": "Return Success", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

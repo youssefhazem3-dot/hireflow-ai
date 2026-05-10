@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HireFlow AI
 
-## Getting Started
+AI-powered recruitment and CV automation platform built with Next.js, n8n, OpenAI, and Supabase.
 
-First, run the development server:
+## Features
+
+- CV upload and parsing
+- AI CV analysis
+- ATS score
+- Match score
+- Candidate ranking
+- Admin dashboard
+- Automated emails
+- n8n workflow automation
+- Supabase database
+- Vercel deployment
+
+## Tech Stack
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+- shadcn/ui-style components
+- Recharts
+- n8n
+- OpenAI API
+- Supabase
+- PostgreSQL
+- Vercel
+
+## Architecture
+
+Candidate Form -> Supabase Storage -> n8n Webhook -> CV Parser -> OpenAI Analysis -> PostgreSQL -> Admin Dashboard -> Email Automation
+
+## Screenshots
+
+Add screenshots in `/public/screenshots` after deployment or local browser capture.
+
+## Workflows
+
+The exported n8n workflow templates are available in the `/workflows` folder:
+
+- `candidate-processing.n8n.json`
+- `status-update.n8n.json`
+- `daily-report.n8n.json`
+- `auto-email.n8n.json`
+
+## How To Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app runs with demo data by default. To connect real services:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Copy `.env.example` to `.env.local`.
+2. Create a Supabase project and run `database/schema.sql`.
+3. Create a Supabase Storage bucket named `cvs`.
+4. Add Supabase and OpenAI keys to `.env.local`.
+5. Import n8n workflows from `/workflows`.
+6. Add the n8n webhook URLs to `.env.local`.
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+Check `.env.example`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Live Demo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Add Vercel link.
 
-## Deploy on Vercel
+## GitHub
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Add repo link.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Portfolio Description
+
+Built an AI-powered recruitment automation platform that allows candidates to upload CVs, automatically extracts and analyzes CV content using AI, compares candidates against job descriptions, generates ATS and match scores, ranks applicants, sends automated emails, and provides an admin dashboard for recruitment management.

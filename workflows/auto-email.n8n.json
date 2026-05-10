@@ -1,0 +1,149 @@
+{
+  "name": "HireFlow AI - Auto Rejection and Shortlist Email",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hireflow/auto-email",
+        "responseMode": "responseNode"
+      },
+      "id": "auto-email-webhook",
+      "name": "Auto Email Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.match_score}}",
+                    "rightValue": 80,
+                    "operator": { "type": "number", "operation": "gte" }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Shortlist"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.match_score}}",
+                    "rightValue": 60,
+                    "operator": { "type": "number", "operation": "gte" }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Review"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      },
+      "id": "score-router",
+      "name": "Route by Match Score",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json.email}}",
+        "subject": "Next stage for your {{$json.position}} application",
+        "text": "Hello {{$json.full_name}},\n\nThank you for applying.\n\nAfter reviewing your application, we would like to move you to the next stage.\n\nOur team will contact you soon with more details.\n\nBest regards,\nHireFlow AI Team"
+      },
+      "id": "shortlist-email",
+      "name": "Shortlist Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [540, -180],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json.email}}",
+        "subject": "Application under review",
+        "text": "Hello {{$json.full_name}},\n\nThank you for applying.\n\nYour application is still under review, and our team will contact you if we need more information.\n\nBest regards,\nHireFlow AI Team"
+      },
+      "id": "review-email",
+      "name": "Review Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [540, 0],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json.email}}",
+        "subject": "Update on your {{$json.position}} application",
+        "text": "Hello {{$json.full_name}},\n\nThank you for your interest in the position.\n\nAfter reviewing your application, we decided to move forward with candidates who better match the role requirements.\n\nWe appreciate your time and wish you the best in your career.\n\nBest regards,\nHireFlow AI Team"
+      },
+      "id": "rejection-email",
+      "name": "Rejection Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [540, 180],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, message: 'Email workflow completed' } }}"
+      },
+      "id": "return-email-response",
+      "name": "Return Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [820, 0]
+    }
+  ],
+  "connections": {
+    "Auto Email Webhook": {
+      "main": [[{ "node": "Route by Match Score", "type": "main", "index": 0 }]]
+    },
+    "Route by Match Score": {
+      "main": [
+        [{ "node": "Shortlist Email", "type": "main", "index": 0 }],
+        [{ "node": "Review Email", "type": "main", "index": 0 }],
+        [{ "node": "Rejection Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Shortlist Email": {
+      "main": [[{ "node": "Return Response", "type": "main", "index": 0 }]]
+    },
+    "Review Email": {
+      "main": [[{ "node": "Return Response", "type": "main", "index": 0 }]]
+    },
+    "Rejection Email": {
+      "main": [[{ "node": "Return Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
