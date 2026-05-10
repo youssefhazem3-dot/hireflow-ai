@@ -63,6 +63,26 @@ The app runs with demo data by default. To connect real services:
 5. Import n8n workflows from `/workflows`.
 6. Add the n8n webhook URLs to `.env.local`.
 
+## Shared Candidate Persistence
+
+New applications are shared between users only when Supabase is configured. Without
+`NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, the app runs in demo
+mode and stores newly submitted candidates in the current browser only.
+
+For Vercel production, add these environment variables to the project, then
+redeploy:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+OPENAI_API_KEY=
+```
+
+After Supabase is connected, `/admin` and `/admin/candidates` read fresh database
+records on every request, so applications submitted by one person appear for
+other recruiters and browsers.
+
 ## Environment Variables
 
 Check `.env.example`.

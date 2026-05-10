@@ -50,8 +50,12 @@ export async function getCandidateRecords(): Promise<CandidateRecord[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (candidateError || !candidateData?.length) {
+  if (candidateError) {
     return fallbackRecords();
+  }
+
+  if (!candidateData?.length) {
+    return [];
   }
 
   const candidates = candidateData as Candidate[];
@@ -216,6 +220,7 @@ export async function createCandidateApplication(input: CandidateApplicationInpu
 
   revalidatePath("/admin");
   revalidatePath("/admin/candidates");
+  revalidatePath(`/admin/candidates/${savedCandidate.id}`);
 
   return {
     candidate_id: savedCandidate.id,

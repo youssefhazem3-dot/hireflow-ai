@@ -6,6 +6,9 @@ import { CandidateDetailPanel } from "@/components/CandidateDetailPanel";
 import { LocalCandidateDetailFallback } from "@/components/LocalCandidateDetailFallback";
 import { getCandidateRecord } from "@/lib/candidates";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type CandidateDetailsPageProps = {
   params: Promise<{ id: string }>;
 };

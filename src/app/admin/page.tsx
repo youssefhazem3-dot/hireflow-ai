@@ -13,6 +13,9 @@ import { MetricCard } from "@/components/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCandidateRecords, getDashboardStats } from "@/lib/candidates";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminDashboardPage() {
   const [records, stats] = await Promise.all([
     getCandidateRecords(),

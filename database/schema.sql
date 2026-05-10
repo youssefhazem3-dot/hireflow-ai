@@ -70,3 +70,8 @@ VALUES
     ARRAY['n8n', 'OpenAI', 'Prompt Engineering', 'Automation', 'Email'],
     'Junior to Mid-level'
   );
+
+-- Supabase Storage bucket used by the application form for uploaded CV files.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('cvs', 'cvs', true)
+ON CONFLICT (id) DO NOTHING;

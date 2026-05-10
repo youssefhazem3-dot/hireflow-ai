@@ -2,6 +2,9 @@ import { AppNav } from "@/components/AppNav";
 import { ApplicationForm } from "@/components/ApplicationForm";
 import { getJobs } from "@/lib/candidates";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function ApplyPage() {
   const jobs = await getJobs();
 

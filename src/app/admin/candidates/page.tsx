@@ -3,6 +3,9 @@ import { CandidateTable } from "@/components/CandidateTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCandidateRecords } from "@/lib/candidates";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function CandidatesPage() {
   const records = await getCandidateRecords();
 
