@@ -261,7 +261,14 @@ export function CandidateTable({ records }: CandidateTableProps) {
                 >
                   {record.full_name}
                 </Link>
-                <p className="mt-1 text-xs text-muted-foreground">{record.email}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <p className="text-xs text-muted-foreground">{record.email}</p>
+                  {record.source === "demo" ? (
+                    <Badge variant="muted" className="min-h-5 px-1.5 py-0 text-[10px]">
+                      Demo
+                    </Badge>
+                  ) : null}
+                </div>
               </TableCell>
               <TableCell>{record.position}</TableCell>
               <TableCell>

@@ -70,6 +70,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
   }
 
   const analysis = record.analysis;
+  const isReadOnly = record.read_only || record.source === "demo";
 
   return (
     <div className="reveal-up grid gap-5 lg:grid-cols-[1.7fr_1fr]">
@@ -83,7 +84,12 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
                   {record.position} - Applied {formatDate(record.created_at)}
                 </CardDescription>
               </div>
-              <Badge className={statusClasses(status)}>{status}</Badge>
+              <div className="flex flex-wrap gap-2">
+                {record.source === "demo" ? (
+                  <Badge variant="muted">Portfolio demo</Badge>
+                ) : null}
+                <Badge className={statusClasses(status)}>{status}</Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="grid gap-4 text-sm sm:grid-cols-2">
@@ -205,6 +211,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
               <select
                 value={status}
                 onChange={(event) => setStatus(event.target.value as CandidateStatus)}
+                disabled={isReadOnly}
                 className="h-10 rounded-md border border-input bg-background/80 px-3 text-sm shadow-sm shadow-black/5 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {statuses.map((item) => (
@@ -214,9 +221,18 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
                 ))}
               </select>
             </label>
-            <Button onClick={updateStatus} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Update status"}
+            <Button onClick={updateStatus} disabled={isSaving || isReadOnly}>
+              {isReadOnly
+                ? "Demo record"
+                : isSaving
+                  ? "Saving..."
+                  : "Update status"}
             </Button>
+            {isReadOnly ? (
+              <p className="text-sm text-muted-foreground">
+                Portfolio demo records are read-only and are not stored in Supabase.
+              </p>
+            ) : null}
             {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
           </CardContent>
         </Card>

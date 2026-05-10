@@ -15,8 +15,54 @@ import type {
   Job,
 } from "@/lib/types";
 
+const displayDemoIdOffset = 900000;
+
+function isDisplayDemoCandidateId(candidateId: number) {
+  return candidateId >= displayDemoIdOffset;
+}
+
 function fallbackRecords() {
-  return demoCandidateRecords;
+  return withDisplayDemoRecords([]);
+}
+
+function toDisplayDemoRecord(record: CandidateRecord): CandidateRecord {
+  const id = record.id + displayDemoIdOffset;
+
+  return {
+    ...record,
+    id,
+    source: "demo",
+    read_only: true,
+    analysis: record.analysis
+      ? {
+          ...record.analysis,
+          id: record.analysis.id + displayDemoIdOffset,
+          candidate_id: id,
+        }
+      : null,
+    logs: record.logs.map((log) => ({
+      ...log,
+      id: log.id + displayDemoIdOffset,
+      candidate_id: id,
+    })),
+  };
+}
+
+function withDisplayDemoRecords(records: CandidateRecord[]) {
+  const existingEmails = new Set(
+    records.map((record) => record.email.toLowerCase()),
+  );
+  const displayDemoRecords = demoCandidateRecords
+    .filter((record) => !existingEmails.has(record.email.toLowerCase()))
+    .map(toDisplayDemoRecord);
+
+  return [
+    ...records.map((record) => ({ ...record, source: "supabase" as const })),
+    ...displayDemoRecords,
+  ].sort(
+    (first, second) =>
+      new Date(second.created_at).getTime() - new Date(first.created_at).getTime(),
+  );
 }
 
 export async function getJobs(): Promise<Job[]> {
@@ -55,7 +101,7 @@ export async function getCandidateRecords(): Promise<CandidateRecord[]> {
   }
 
   if (!candidateData?.length) {
-    return [];
+    return withDisplayDemoRecords([]);
   }
 
   const candidates = candidateData as Candidate[];
@@ -76,12 +122,14 @@ export async function getCandidateRecords(): Promise<CandidateRecord[]> {
   const analyses = (analysisData ?? []) as CandidateAnalysis[];
   const logs = (logData ?? []) as CandidateLog[];
 
-  return candidates.map((candidate) => ({
-    ...candidate,
-    analysis:
-      analyses.find((analysis) => analysis.candidate_id === candidate.id) ?? null,
-    logs: logs.filter((log) => log.candidate_id === candidate.id),
-  }));
+  return withDisplayDemoRecords(
+    candidates.map((candidate) => ({
+      ...candidate,
+      analysis:
+        analyses.find((analysis) => analysis.candidate_id === candidate.id) ?? null,
+      logs: logs.filter((log) => log.candidate_id === candidate.id),
+    })),
+  );
 }
 
 export async function getCandidateRecord(id: number) {
@@ -234,6 +282,10 @@ export async function updateCandidateStatus(
   candidateId: number,
   status: CandidateStatus,
 ) {
+  if (isDisplayDemoCandidateId(candidateId)) {
+    throw new Error("Portfolio demo candidates are read-only.");
+  }
+
   const supabase = getSupabaseAdmin();
 
   if (!supabase) {

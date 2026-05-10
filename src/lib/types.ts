@@ -57,6 +57,8 @@ export type CandidateLog = {
 export type CandidateRecord = Candidate & {
   analysis: CandidateAnalysis | null;
   logs: CandidateLog[];
+  source?: "demo" | "supabase";
+  read_only?: boolean;
 };
 
 export type DashboardStats = {

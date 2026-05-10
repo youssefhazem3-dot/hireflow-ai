@@ -88,6 +88,10 @@ If you submitted applications before Supabase was connected, those records were
 stored only in that browser as demo data. Open `/admin/candidates` from that
 same browser and click `Import demo records` to move them into Supabase.
 
+The dashboard also appends read-only portfolio demo candidates to Supabase data
+so the live demo stays visually complete without inserting fake applicants into
+the real database.
+
 ## Row Level Security
 
 Run `database/rls.sql` in the Supabase SQL Editor after creating the tables.
