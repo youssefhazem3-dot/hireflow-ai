@@ -69,11 +69,11 @@ Check `.env.example`.
 
 ## Live Demo
 
-Add Vercel link.
+[https://hireflow-ai-delta.vercel.app](https://hireflow-ai-delta.vercel.app)
 
 ## GitHub
 
-Add repo link.
+[https://github.com/youssefhazem3-dot/hireflow-ai](https://github.com/youssefhazem3-dot/hireflow-ai)
 
 ## Portfolio Description
 
