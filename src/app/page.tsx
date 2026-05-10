@@ -48,12 +48,13 @@ const workflowSteps = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="animated-grid min-h-screen overflow-x-hidden bg-background">
       <AppNav />
 
-      <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden border-b">
-        <div className="absolute inset-0 opacity-70">
-          <div className="absolute left-[6%] top-12 h-[72%] w-[88%] rounded-lg border bg-card shadow-2xl shadow-black/40">
+      <section className="relative min-h-[calc(100vh-9rem)] overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 opacity-60">
+          <div className="glass-panel shine-border float-panel absolute left-[6%] top-12 h-[72%] w-[88%] rounded-lg border">
+            <span className="scan-line" />
             <div className="flex h-12 items-center justify-between border-b px-5">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
@@ -65,16 +66,16 @@ export default function Home() {
               </span>
             </div>
             <div className="grid h-[calc(100%-3rem)] gap-4 p-5 lg:grid-cols-[260px_1fr]">
-              <div className="hidden rounded-lg border bg-background/70 p-4 lg:block">
+              <div className="hidden rounded-lg border bg-background/70 p-4 shadow-inner shadow-black/10 lg:block">
                 <div className="h-4 w-24 rounded bg-muted" />
                 <div className="mt-6 grid gap-3">
                   {["Pending", "Shortlisted", "Interview", "Hired"].map((item) => (
                     <div
                       key={item}
-                      className="flex items-center justify-between rounded-md border bg-card p-3"
+                      className="interactive-card flex items-center justify-between rounded-md border bg-card/80 p-3"
                     >
                       <span className="text-xs text-muted-foreground">{item}</span>
-                      <span className="h-2 w-10 rounded bg-primary/60" />
+                      <span className="pulse-line h-2 w-10 origin-left rounded bg-primary/60" />
                     </div>
                   ))}
                 </div>
@@ -82,7 +83,11 @@ export default function Home() {
               <div className="grid gap-4">
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                   {[87, 91, 32, 8].map((value, index) => (
-                    <div key={value} className="rounded-lg border bg-background/70 p-4">
+                    <div
+                      key={value}
+                      className="interactive-card rounded-lg border bg-background/70 p-4 shadow-sm shadow-black/10"
+                      style={{ animationDelay: `${index * 80}ms` }}
+                    >
                       <div className="h-3 w-20 rounded bg-muted" />
                       <div className="mt-4 font-mono text-3xl font-semibold">
                         {value}
@@ -92,14 +97,14 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-                  <div className="rounded-lg border bg-background/70 p-4">
+                  <div className="rounded-lg border bg-background/70 p-4 shadow-sm shadow-black/10">
                     <div className="mb-4 h-4 w-40 rounded bg-muted" />
                     <div className="grid gap-3">
                       {["Ahmed Ali", "Mariam Hassan", "Omar Nabil"].map(
                         (candidate, index) => (
                           <div
                             key={candidate}
-                            className="grid grid-cols-[1fr_80px_80px] items-center gap-3 rounded-md border bg-card p-3"
+                            className="interactive-card grid grid-cols-[1fr_80px_80px] items-center gap-3 rounded-md border bg-card/80 p-3"
                           >
                             <span className="text-sm">{candidate}</span>
                             <span className="font-mono text-sm text-emerald-300">
@@ -111,14 +116,18 @@ export default function Home() {
                       )}
                     </div>
                   </div>
-                  <div className="rounded-lg border bg-background/70 p-4">
+                  <div className="rounded-lg border bg-background/70 p-4 shadow-sm shadow-black/10">
                     <div className="mb-5 h-4 w-28 rounded bg-muted" />
                     <div className="flex h-44 items-end gap-3">
                       {[56, 88, 72, 92, 64].map((height, index) => (
                         <span
                           key={height}
-                          className="w-full rounded-t bg-primary/70"
-                          style={{ height: `${height}%`, opacity: 0.55 + index * 0.08 }}
+                          className="pulse-line w-full origin-bottom rounded-t bg-primary/70"
+                          style={{
+                            height: `${height}%`,
+                            opacity: 0.55 + index * 0.08,
+                            animationDelay: `${index * 130}ms`,
+                          }}
                         />
                       ))}
                     </div>
@@ -130,8 +139,9 @@ export default function Home() {
         </div>
 
         <div className="absolute inset-0 bg-background/30" />
-        <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col justify-end px-4 pb-12 pt-24 sm:px-6 lg:px-8">
-          <div className="max-w-3xl pb-10">
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background via-background/90 to-transparent" />
+        <div className="relative mx-auto flex min-h-[calc(100vh-9rem)] w-full max-w-7xl flex-col justify-end px-4 pb-12 pt-24 sm:px-6 lg:px-8">
+          <div className="reveal-up max-w-3xl pb-10">
             <Badge className="mb-5 border-primary/40 bg-primary/10 text-primary">
               <Sparkles className="mr-1 h-3.5 w-3.5" />
               AI recruitment automation
@@ -146,14 +156,14 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/apply"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                className="button-glow inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/90"
               >
                 Apply now
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/admin"
-                className="inline-flex h-11 items-center justify-center rounded-md border bg-background/70 px-5 text-sm font-medium transition-colors hover:bg-secondary"
+                className="inline-flex h-11 items-center justify-center rounded-md border bg-background/70 px-5 text-sm font-medium shadow-sm shadow-black/10 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-secondary"
               >
                 View dashboard
               </Link>
@@ -162,9 +172,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-b py-20">
+      <section className="border-b border-white/10 py-20">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-          <div>
+          <div className="reveal-up">
             <p className="text-sm font-medium text-primary">Problem statement</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-normal">
               Manual CV screening is slow, inconsistent, and hard to audit.
@@ -175,8 +185,12 @@ export default function Home() {
               "Recruiters lose hours reading mismatched CVs.",
               "Candidate data sits across inboxes and spreadsheets.",
               "Status updates and reports are easy to forget.",
-            ].map((item) => (
-              <div key={item} className="rounded-lg border bg-card p-5">
+            ].map((item, index) => (
+              <div
+                key={item}
+                className="interactive-card reveal-up rounded-lg border bg-card/90 p-5 backdrop-blur"
+                style={{ animationDelay: `${index * 90}ms` }}
+              >
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <p className="mt-4 text-sm leading-6 text-muted-foreground">
                   {item}
@@ -187,9 +201,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-b py-20">
+      <section className="border-b border-white/10 py-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div className="reveal-up flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-medium text-primary">How it works</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-normal">
@@ -203,30 +217,48 @@ export default function Home() {
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-5">
             {workflowSteps.map((step, index) => (
-              <div key={step.label} className="rounded-lg border bg-card p-5">
-                <step.icon className="h-6 w-6 text-primary" />
+              <div
+                key={step.label}
+                className="interactive-card reveal-up rounded-lg border bg-card/90 p-5 backdrop-blur"
+                style={{ animationDelay: `${index * 80}ms` }}
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <step.icon className="h-6 w-6" />
+                </div>
                 <p className="mt-5 font-mono text-xs text-muted-foreground">
                   Step {index + 1}
                 </p>
                 <h3 className="mt-2 font-semibold">{step.label}</h3>
+                <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="pulse-line h-full origin-left rounded-full bg-primary"
+                    style={{ animationDelay: `${index * 120}ms` }}
+                  />
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-b py-20">
+      <section className="border-b border-white/10 py-20">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-          <div>
+          <div className="reveal-up">
             <p className="text-sm font-medium text-primary">Features</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-normal">
               A complete MVP for a recruitment automation portfolio project.
             </h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {features.map((feature) => (
-              <div key={feature} className="flex items-center gap-3 rounded-lg border p-4">
-                <ShieldCheck className="h-4 w-4 text-primary" />
+            {features.map((feature, index) => (
+              <div
+                key={feature}
+                className="interactive-card reveal-up flex items-center gap-3 rounded-lg border bg-background/60 p-4 backdrop-blur"
+                style={{ animationDelay: `${index * 45}ms` }}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                  <ShieldCheck className="h-4 w-4" />
+                </span>
                 <span className="text-sm">{feature}</span>
               </div>
             ))}
@@ -234,17 +266,22 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-b py-20">
+      <section className="border-b border-white/10 py-20">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-8">
-          <div>
+          <div className="reveal-up">
             <p className="text-sm font-medium text-primary">Tech stack</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-normal">
               Built with modern app, AI, automation, and database tools.
             </h2>
           </div>
           <div className="flex flex-wrap gap-3">
-            {stack.map((item) => (
-              <Badge key={item} variant="muted" className="h-9 px-3 text-sm">
+            {stack.map((item, index) => (
+              <Badge
+                key={item}
+                variant="muted"
+                className="reveal-up h-9 border-white/10 bg-secondary/70 px-3 text-sm shadow-sm shadow-black/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 {item}
               </Badge>
             ))}
@@ -254,7 +291,7 @@ export default function Home() {
 
       <section className="py-20">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-8">
-          <div>
+          <div className="reveal-up">
             <p className="text-sm font-medium text-primary">Screenshots</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-normal">
               Dashboard-first screens for recruiter workflows.
@@ -267,9 +304,16 @@ export default function Home() {
               { label: "Supabase Data", icon: Database },
               { label: "Email Automation", icon: MailCheck },
             ].map((item) => (
-              <div key={item.label} className="rounded-lg border bg-card p-5">
-                <item.icon className="h-5 w-5 text-primary" />
-                <div className="mt-8 h-2 rounded bg-muted" />
+              <div
+                key={item.label}
+                className="interactive-card reveal-up rounded-lg border bg-card/90 p-5 backdrop-blur"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <div className="mt-8 h-2 overflow-hidden rounded bg-muted">
+                  <div className="pulse-line h-full w-4/5 origin-left rounded bg-primary/70" />
+                </div>
                 <div className="mt-3 h-2 w-2/3 rounded bg-muted" />
                 <p className="mt-5 text-sm font-medium">{item.label}</p>
               </div>

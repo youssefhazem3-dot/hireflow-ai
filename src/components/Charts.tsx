@@ -98,7 +98,7 @@ export function Charts({ records }: ChartsProps) {
           "Top Extracted Skills",
           "Applications Over Time",
         ].map((title) => (
-          <Card key={title}>
+          <Card key={title} className="interactive-card">
             <CardHeader>
               <CardTitle>{title}</CardTitle>
               <CardDescription>Loading chart data.</CardDescription>
@@ -114,7 +114,7 @@ export function Charts({ records }: ChartsProps) {
 
   return (
     <div className="grid gap-4 xl:grid-cols-2">
-      <Card>
+      <Card className="interactive-card">
         <CardHeader>
           <CardTitle>Candidates by Status</CardTitle>
           <CardDescription>Pipeline distribution across active stages.</CardDescription>
@@ -139,7 +139,7 @@ export function Charts({ records }: ChartsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="interactive-card">
         <CardHeader>
           <CardTitle>Average Score by Position</CardTitle>
           <CardDescription>Mean match score grouped by role.</CardDescription>
@@ -176,20 +176,25 @@ export function Charts({ records }: ChartsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="interactive-card">
         <CardHeader>
           <CardTitle>Top Extracted Skills</CardTitle>
           <CardDescription>Most frequent AI-detected candidate skills.</CardDescription>
         </CardHeader>
         <CardContent className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={skillsData} layout="vertical" margin={{ left: 24 }}>
+            <BarChart
+              data={skillsData}
+              layout="vertical"
+              margin={{ left: 34, right: 12 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis type="number" tick={{ fill: "var(--muted-foreground)" }} />
               <YAxis
                 dataKey="skill"
                 type="category"
-                tick={{ fill: "var(--muted-foreground)" }}
+                width={120}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
               />
               <Tooltip
                 contentStyle={{
@@ -204,7 +209,7 @@ export function Charts({ records }: ChartsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="interactive-card">
         <CardHeader>
           <CardTitle>Applications Over Time</CardTitle>
           <CardDescription>Recent submission trend for the recruiting queue.</CardDescription>

@@ -17,12 +17,12 @@ export default async function CandidateDetailsPage({
   const record = await getCandidateRecord(Number(id));
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="animated-grid min-h-screen overflow-x-hidden bg-background">
       <AppNav />
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <Link
           href="/admin/candidates"
-          className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="reveal-up inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-all duration-200 hover:-translate-x-0.5 hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to candidates

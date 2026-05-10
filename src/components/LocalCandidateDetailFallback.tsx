@@ -31,7 +31,7 @@ export function LocalCandidateDetailFallback({
 
   if (!record) {
     return (
-      <Card>
+      <Card className="interactive-card reveal-up">
         <CardHeader>
           <CardTitle>Candidate not found</CardTitle>
         </CardHeader>
@@ -42,7 +42,7 @@ export function LocalCandidateDetailFallback({
           </p>
           <Link
             href="/admin/candidates"
-            className="w-fit rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            className="button-glow w-fit rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:-translate-y-0.5"
           >
             Back to candidates
           </Link>

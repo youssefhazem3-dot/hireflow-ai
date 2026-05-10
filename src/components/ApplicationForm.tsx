@@ -49,10 +49,10 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
       const payload = contentType.includes("application/json")
         ? ((await response.json()) as {
             success?: boolean;
-          candidate_id?: number;
-          candidate?: CandidateRecord | null;
-          message?: string;
-        })
+            candidate_id?: number;
+            candidate?: CandidateRecord | null;
+            message?: string;
+          })
         : {
             success: false,
             message: `Server returned ${response.status}. Please try again.`,
@@ -79,7 +79,7 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-3xl">
+    <Card className="interactive-card mx-auto w-full max-w-full sm:max-w-3xl">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -95,13 +95,13 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <form className="grid gap-5" onSubmit={handleSubmit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm">
+        <form className="grid min-w-0 gap-5" onSubmit={handleSubmit}>
+          <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label className="grid min-w-0 gap-2 text-sm">
               Full name
               <Input name="full_name" placeholder="Ahmed Ali" required />
             </label>
-            <label className="grid gap-2 text-sm">
+            <label className="grid min-w-0 gap-2 text-sm">
               Email
               <Input
                 name="email"
@@ -110,11 +110,11 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
                 required
               />
             </label>
-            <label className="grid gap-2 text-sm">
+            <label className="grid min-w-0 gap-2 text-sm">
               Phone
               <Input name="phone" placeholder="01000000000" />
             </label>
-            <label className="grid gap-2 text-sm">
+            <label className="grid min-w-0 gap-2 text-sm">
               LinkedIn
               <Input
                 name="linkedin_url"
@@ -122,7 +122,7 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
                 placeholder="https://linkedin.com/in/ahmed"
               />
             </label>
-            <label className="grid gap-2 text-sm">
+            <label className="grid min-w-0 gap-2 text-sm">
               GitHub / Portfolio
               <Input
                 name="portfolio_url"
@@ -130,13 +130,13 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
                 placeholder="https://github.com/ahmed"
               />
             </label>
-            <label className="grid gap-2 text-sm">
+            <label className="grid min-w-0 gap-2 text-sm">
               Position
               <select
                 name="position"
                 value={selectedPosition}
                 onChange={(event) => setSelectedPosition(event.target.value)}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-10 rounded-md border border-input bg-background/80 px-3 text-sm shadow-sm shadow-black/5 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring"
                 required
               >
                 {jobs.map((job) => (
@@ -149,10 +149,14 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
           </div>
 
           {selectedJob ? (
-            <div className="rounded-lg border bg-muted/40 p-4">
+            <div className="min-w-0 rounded-lg border bg-muted/40 p-4 shadow-inner shadow-black/5">
               <div className="flex flex-wrap gap-2">
                 {selectedJob.required_skills.map((skill) => (
-                  <Badge key={skill} variant="muted">
+                  <Badge
+                    key={skill}
+                    variant="muted"
+                    className="border-white/10 bg-background/60"
+                  >
                     {skill}
                   </Badge>
                 ))}
@@ -163,9 +167,9 @@ export function ApplicationForm({ jobs }: ApplicationFormProps) {
             </div>
           ) : null}
 
-          <label className="grid gap-2 text-sm">
+          <label className="grid min-w-0 gap-2 text-sm">
             CV upload
-            <div className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-dashed bg-background p-5 text-center">
+            <div className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-dashed bg-background/70 p-5 text-center shadow-inner shadow-black/10 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
               <UploadCloud className="h-8 w-8 text-primary" />
               <Input
                 name="cv"

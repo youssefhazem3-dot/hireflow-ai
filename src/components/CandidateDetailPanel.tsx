@@ -72,15 +72,15 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
   const analysis = record.analysis;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1.7fr_1fr]">
+    <div className="reveal-up grid gap-5 lg:grid-cols-[1.7fr_1fr]">
       <div className="grid gap-5">
-        <Card>
+        <Card className="interactive-card">
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <CardTitle>{record.full_name}</CardTitle>
                 <CardDescription>
-                  {record.position} • Applied {formatDate(record.created_at)}
+                  {record.position} - Applied {formatDate(record.created_at)}
                 </CardDescription>
               </div>
               <Badge className={statusClasses(status)}>{status}</Badge>
@@ -110,7 +110,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="interactive-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -125,7 +125,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
               {analysis?.cv_summary ?? "No AI summary available yet."}
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="interactive-card rounded-lg border bg-muted/30 p-4">
                 <p className="text-sm text-muted-foreground">Match score</p>
                 <p
                   className={`mt-2 font-mono text-4xl font-semibold ${scoreTone(
@@ -135,7 +135,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
                   {analysis?.match_score ?? 0}%
                 </p>
               </div>
-              <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="interactive-card rounded-lg border bg-muted/30 p-4">
                 <p className="text-sm text-muted-foreground">ATS score</p>
                 <p className="mt-2 font-mono text-4xl font-semibold">
                   {analysis?.ats_score ?? 0}%
@@ -153,7 +153,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
         </Card>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Card>
+          <Card className="interactive-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-300" />
@@ -169,7 +169,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="interactive-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ClipboardList className="h-4 w-4 text-amber-300" />
@@ -188,7 +188,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
       </div>
 
       <aside className="grid gap-5 content-start">
-        <Card>
+        <Card className="interactive-card">
           <CardHeader>
             <CardTitle>Recommendation</CardTitle>
             <CardDescription>AI decision support for recruiter review.</CardDescription>
@@ -205,7 +205,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
               <select
                 value={status}
                 onChange={(event) => setStatus(event.target.value as CandidateStatus)}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-10 rounded-md border border-input bg-background/80 px-3 text-sm shadow-sm shadow-black/5 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {statuses.map((item) => (
                   <option key={item} value={item}>
@@ -221,7 +221,7 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="interactive-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-primary" />
@@ -235,14 +235,14 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="interactive-card">
           <CardHeader>
             <CardTitle>Logs</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
               {record.logs.map((log) => (
-                <div key={log.id} className="rounded-md border bg-muted/20 p-3">
+                <div key={log.id} className="interactive-card rounded-md border bg-muted/20 p-3">
                   <p className="text-sm font-medium">{log.action}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{log.details}</p>
                   <p className="mt-2 font-mono text-xs text-muted-foreground">

@@ -21,13 +21,13 @@ export default async function AdminDashboardPage() {
   const recentRecords = records.slice(0, 4);
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="animated-grid min-h-screen overflow-x-hidden bg-background">
       <AppNav />
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="reveal-up flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="text-sm font-medium text-primary">Admin dashboard</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-normal">
+            <h1 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">
               Recruitment Overview
             </h1>
           </div>
@@ -38,44 +38,58 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <MetricCard
-            title="Total candidates"
-            value={stats.totalCandidates}
-            helper="Applications received"
-            icon={<Users className="h-5 w-5" />}
-          />
-          <MetricCard
-            title="Shortlisted"
-            value={stats.shortlistedCandidates}
-            helper="Ready for next step"
-            icon={<ShieldCheck className="h-5 w-5" />}
-            tone="sky"
-          />
-          <MetricCard
-            title="Rejected"
-            value={stats.rejectedCandidates}
-            helper="Closed applications"
-            icon={<ClipboardList className="h-5 w-5" />}
-            tone="rose"
-          />
-          <MetricCard
-            title="Avg ATS"
-            value={`${stats.averageAtsScore}%`}
-            helper="CV quality score"
-            icon={<Gauge className="h-5 w-5" />}
-            tone="amber"
-          />
-          <MetricCard
-            title="Avg match"
-            value={`${stats.averageMatchScore}%`}
-            helper="Fit against roles"
-            icon={<BarChart3 className="h-5 w-5" />}
-          />
+          {[
+            {
+              title: "Total candidates",
+              value: stats.totalCandidates,
+              helper: "Applications received",
+              icon: <Users className="h-5 w-5" />,
+              tone: "primary" as const,
+            },
+            {
+              title: "Shortlisted",
+              value: stats.shortlistedCandidates,
+              helper: "Ready for next step",
+              icon: <ShieldCheck className="h-5 w-5" />,
+              tone: "sky" as const,
+            },
+            {
+              title: "Rejected",
+              value: stats.rejectedCandidates,
+              helper: "Closed applications",
+              icon: <ClipboardList className="h-5 w-5" />,
+              tone: "rose" as const,
+            },
+            {
+              title: "Avg ATS",
+              value: `${stats.averageAtsScore}%`,
+              helper: "CV quality score",
+              icon: <Gauge className="h-5 w-5" />,
+              tone: "amber" as const,
+            },
+            {
+              title: "Avg match",
+              value: `${stats.averageMatchScore}%`,
+              helper: "Fit against roles",
+              icon: <BarChart3 className="h-5 w-5" />,
+              tone: "primary" as const,
+            },
+          ].map((metric, index) => (
+            <div
+              key={metric.title}
+              className="reveal-up"
+              style={{ animationDelay: `${index * 70}ms` }}
+            >
+              <MetricCard {...metric} />
+            </div>
+          ))}
         </div>
 
-        <Charts records={records} />
+        <div className="reveal-up" style={{ animationDelay: "160ms" }}>
+          <Charts records={records} />
+        </div>
 
-        <Card>
+        <Card className="interactive-card reveal-up" style={{ animationDelay: "220ms" }}>
           <CardHeader>
             <CardTitle>Recent Applications</CardTitle>
           </CardHeader>

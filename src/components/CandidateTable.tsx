@@ -145,7 +145,7 @@ export function CandidateTable({ records }: CandidateTableProps) {
             onChange={(event) =>
               setStatus(event.target.value as CandidateStatus | "All")
             }
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="h-10 rounded-md border border-input bg-background/80 px-3 text-sm shadow-sm shadow-black/5 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring"
           >
             {statuses.map((item) => (
               <option key={item} value={item}>
@@ -156,7 +156,7 @@ export function CandidateTable({ records }: CandidateTableProps) {
           <select
             value={position}
             onChange={(event) => setPosition(event.target.value)}
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="h-10 rounded-md border border-input bg-background/80 px-3 text-sm shadow-sm shadow-black/5 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring"
           >
             {positions.map((item) => (
               <option key={item} value={item}>
@@ -192,7 +192,10 @@ export function CandidateTable({ records }: CandidateTableProps) {
         </TableHeader>
         <TableBody>
           {filteredRecords.map((record) => (
-            <TableRow key={record.id}>
+            <TableRow
+              key={record.id}
+              className="transition-colors duration-200 hover:bg-primary/5"
+            >
               <TableCell>
                 <Link
                   href={`/admin/candidates/${record.id}`}
@@ -228,7 +231,7 @@ export function CandidateTable({ records }: CandidateTableProps) {
       </Table>
 
       {!filteredRecords.length ? (
-        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg border border-dashed bg-background/60 p-8 text-center text-sm text-muted-foreground backdrop-blur">
           No candidates match the current filters.
         </div>
       ) : null}

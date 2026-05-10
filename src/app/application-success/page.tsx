@@ -13,12 +13,12 @@ export default async function ApplicationSuccessPage({
   const { id } = await searchParams;
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="animated-grid min-h-screen overflow-x-hidden bg-background">
       <AppNav />
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-3xl items-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full rounded-lg border bg-card p-8 text-center">
+        <div className="glass-panel interactive-card reveal-up w-full rounded-lg border p-8 text-center">
           <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
-          <h1 className="mt-6 text-3xl font-semibold tracking-normal">
+          <h1 className="mt-6 text-2xl font-semibold tracking-normal sm:text-3xl">
             Your application has been submitted successfully.
           </h1>
           <p className="mt-4 text-muted-foreground">
@@ -28,13 +28,13 @@ export default async function ApplicationSuccessPage({
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               href="/apply"
-              className="inline-flex h-10 items-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-secondary"
+              className="inline-flex h-10 items-center rounded-md border bg-background/70 px-4 text-sm font-medium shadow-sm shadow-black/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-secondary"
             >
               Submit another
             </Link>
             <Link
               href="/admin"
-              className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="button-glow inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/90"
             >
               Open dashboard
             </Link>
