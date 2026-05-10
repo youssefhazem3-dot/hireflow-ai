@@ -84,6 +84,10 @@ After Supabase is connected, `/admin` and `/admin/candidates` read fresh databas
 records on every request, so applications submitted by one person appear for
 other recruiters and browsers.
 
+If you submitted applications before Supabase was connected, those records were
+stored only in that browser as demo data. Open `/admin/candidates` from that
+same browser and click `Import demo records` to move them into Supabase.
+
 ## Row Level Security
 
 Run `database/rls.sql` in the Supabase SQL Editor after creating the tables.

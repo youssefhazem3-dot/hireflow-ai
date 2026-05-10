@@ -76,6 +76,17 @@ export function saveLocalCandidate(record: CandidateRecord) {
   notifyLocalCandidateChange();
 }
 
+export function clearLocalCandidates() {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  window.localStorage.removeItem(localCandidateKey);
+  candidateCacheRaw = null;
+  candidateCache = emptyLocalCandidates;
+  notifyLocalCandidateChange();
+}
+
 export function updateLocalCandidateStatus(
   candidateId: number,
   status: CandidateStatus,

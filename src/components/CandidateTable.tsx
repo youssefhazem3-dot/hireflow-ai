@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ArrowUpDown, Download, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowUpDown, DatabaseZap, Download, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  clearLocalCandidates,
   getLocalCandidatesSnapshot,
   getServerLocalCandidatesSnapshot,
   subscribeLocalCandidates,
@@ -37,10 +39,13 @@ const statuses: Array<CandidateStatus | "All"> = [
 ];
 
 export function CandidateTable({ records }: CandidateTableProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<CandidateStatus | "All">("All");
   const [position, setPosition] = useState("All");
   const [sortKey, setSortKey] = useState<"date" | "match">("match");
+  const [isImporting, setIsImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
   const localRecords = useSyncExternalStore(
     subscribeLocalCandidates,
     getLocalCandidatesSnapshot,
@@ -127,6 +132,43 @@ export function CandidateTable({ records }: CandidateTableProps) {
     URL.revokeObjectURL(url);
   }
 
+  async function importLocalRecords() {
+    setIsImporting(true);
+    setImportMessage(null);
+
+    try {
+      const response = await fetch("/api/candidates/import-local", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ records: localRecords }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        imported?: number;
+        skipped?: number;
+        message?: string;
+      };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message ?? "Could not import local records.");
+      }
+
+      clearLocalCandidates();
+      router.refresh();
+      setImportMessage(
+        `Imported ${payload.imported ?? 0} local record(s). ${
+          payload.skipped ? `${payload.skipped} skipped.` : ""
+        }`.trim(),
+      );
+    } catch (error) {
+      setImportMessage(
+        error instanceof Error ? error.message : "Could not import local records.",
+      );
+    } finally {
+      setIsImporting(false);
+    }
+  }
+
   return (
     <div className="grid gap-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -175,8 +217,24 @@ export function CandidateTable({ records }: CandidateTableProps) {
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
+          {localRecords.length ? (
+            <Button
+              variant="outline"
+              onClick={importLocalRecords}
+              disabled={isImporting}
+            >
+              <DatabaseZap className="h-4 w-4" />
+              {isImporting ? "Importing..." : "Import demo records"}
+            </Button>
+          ) : null}
         </div>
       </div>
+
+      {importMessage ? (
+        <div className="rounded-md border bg-secondary/60 px-3 py-2 text-sm text-muted-foreground">
+          {importMessage}
+        </div>
+      ) : null}
 
       <Table>
         <TableHeader>
