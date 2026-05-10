@@ -3,7 +3,13 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpDown, DatabaseZap, Download, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  DatabaseZap,
+  Download,
+  Search,
+  Trash2,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import {
   clearLocalCandidates,
+  deleteLocalCandidate,
   getLocalCandidatesSnapshot,
   getServerLocalCandidatesSnapshot,
   subscribeLocalCandidates,
@@ -45,6 +52,7 @@ export function CandidateTable({ records }: CandidateTableProps) {
   const [position, setPosition] = useState("All");
   const [sortKey, setSortKey] = useState<"date" | "match">("match");
   const [isImporting, setIsImporting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const localRecords = useSyncExternalStore(
     subscribeLocalCandidates,
@@ -169,6 +177,48 @@ export function CandidateTable({ records }: CandidateTableProps) {
     }
   }
 
+  async function deleteRecord(record: CandidateRecord) {
+    const confirmed = window.confirm(
+      `Delete ${record.full_name}? This cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingId(record.id);
+    setImportMessage(null);
+
+    try {
+      if (!record.source) {
+        deleteLocalCandidate(record.id);
+        setImportMessage("Local demo candidate deleted.");
+        return;
+      }
+
+      const response = await fetch(`/api/candidates/${record.id}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message ?? "Could not delete candidate.");
+      }
+
+      router.refresh();
+      setImportMessage("Candidate deleted successfully.");
+    } catch (error) {
+      setImportMessage(
+        error instanceof Error ? error.message : "Could not delete candidate.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   return (
     <div className="grid gap-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -246,6 +296,7 @@ export function CandidateTable({ records }: CandidateTableProps) {
             <TableHead>Status</TableHead>
             <TableHead>Experience</TableHead>
             <TableHead>Date submitted</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -290,6 +341,26 @@ export function CandidateTable({ records }: CandidateTableProps) {
               </TableCell>
               <TableCell>{record.analysis?.experience_level ?? "Review"}</TableCell>
               <TableCell>{formatDate(record.created_at)}</TableCell>
+              <TableCell>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => deleteRecord(record)}
+                  disabled={
+                    deletingId === record.id ||
+                    record.source === "demo" ||
+                    record.read_only
+                  }
+                  aria-label={`Delete ${record.full_name}`}
+                  title={
+                    record.source === "demo" || record.read_only
+                      ? "Portfolio demo records are read-only"
+                      : `Delete ${record.full_name}`
+                  }
+                >
+                  <Trash2 className="h-4 w-4 text-rose-300" />
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   ClipboardList,
   Mail,
   ShieldCheck,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +21,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { CandidateRecord, CandidateStatus } from "@/lib/types";
-import { updateLocalCandidateStatus } from "@/lib/local-candidates";
+import {
+  deleteLocalCandidate,
+  updateLocalCandidateStatus,
+} from "@/lib/local-candidates";
 import {
   formatDate,
   recommendationClasses,
@@ -40,8 +45,10 @@ const statuses: CandidateStatus[] = [
 ];
 
 export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<CandidateStatus>(record.status);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   async function updateStatus() {
@@ -49,6 +56,12 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
     setMessage(null);
 
     try {
+      if (!record.source) {
+        updateLocalCandidateStatus(record.id, status);
+        setMessage("Status updated successfully.");
+        return;
+      }
+
       const response = await fetch(`/api/candidates/${record.id}/status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,6 +79,49 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
       setMessage(error instanceof Error ? error.message : "Could not update status.");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function deleteRecord() {
+    const confirmed = window.confirm(
+      `Delete ${record.full_name}? This cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setMessage(null);
+
+    try {
+      if (!record.source) {
+        deleteLocalCandidate(record.id);
+        router.push("/admin/candidates");
+        router.refresh();
+        return;
+      }
+
+      const response = await fetch(`/api/candidates/${record.id}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message ?? "Could not delete candidate.");
+      }
+
+      router.push("/admin/candidates");
+      router.refresh();
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Could not delete candidate.",
+      );
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -234,6 +290,33 @@ export function CandidateDetailPanel({ record }: CandidateDetailPanelProps) {
               </p>
             ) : null}
             {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
+          </CardContent>
+        </Card>
+
+        <Card className="interactive-card">
+          <CardHeader>
+            <CardTitle>Danger Zone</CardTitle>
+            <CardDescription>Remove this candidate from the admin dashboard.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            <Button
+              variant="destructive"
+              onClick={deleteRecord}
+              disabled={isDeleting || isReadOnly}
+            >
+              <Trash2 className="h-4 w-4" />
+              {isReadOnly
+                ? "Demo record"
+                : isDeleting
+                  ? "Deleting..."
+                  : "Delete candidate"}
+            </Button>
+            {isReadOnly ? (
+              <p className="text-sm text-muted-foreground">
+                Portfolio demo records cannot be deleted from Supabase because
+                they are not real database records.
+              </p>
+            ) : null}
           </CardContent>
         </Card>
 

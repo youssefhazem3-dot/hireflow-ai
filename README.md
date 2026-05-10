@@ -10,6 +10,7 @@ AI-powered recruitment and CV automation platform built with Next.js, n8n, OpenA
 - Match score
 - Candidate ranking
 - Admin dashboard
+- Candidate deletion
 - Automated emails
 - n8n workflow automation
 - Supabase database

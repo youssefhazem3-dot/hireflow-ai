@@ -87,6 +87,19 @@ export function clearLocalCandidates() {
   notifyLocalCandidateChange();
 }
 
+export function deleteLocalCandidate(candidateId: number) {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  const records = readLocalCandidates().filter(
+    (record) => record.id !== candidateId,
+  );
+  window.localStorage.setItem(localCandidateKey, JSON.stringify(records));
+  candidateCacheRaw = null;
+  notifyLocalCandidateChange();
+}
+
 export function updateLocalCandidateStatus(
   candidateId: number,
   status: CandidateStatus,

@@ -313,3 +313,65 @@ export async function updateCandidateStatus(
 
   return { success: true, source: "supabase" };
 }
+
+function getCvStoragePath(cvFileUrl: string | null) {
+  if (!cvFileUrl) {
+    return null;
+  }
+
+  const marker = "/storage/v1/object/public/cvs/";
+  const markerIndex = cvFileUrl.indexOf(marker);
+
+  if (markerIndex === -1) {
+    return null;
+  }
+
+  return decodeURIComponent(cvFileUrl.slice(markerIndex + marker.length));
+}
+
+export async function deleteCandidate(candidateId: number) {
+  if (isDisplayDemoCandidateId(candidateId)) {
+    throw new Error("Portfolio demo candidates are read-only.");
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return { success: true, source: "demo" };
+  }
+
+  const { data: candidate, error: readError } = await supabase
+    .from("candidates")
+    .select("id,cv_file_url")
+    .eq("id", candidateId)
+    .maybeSingle();
+
+  if (readError) {
+    throw new Error(readError.message);
+  }
+
+  if (!candidate) {
+    throw new Error("Candidate not found.");
+  }
+
+  const storagePath = getCvStoragePath(candidate.cv_file_url as string | null);
+
+  if (storagePath) {
+    await supabase.storage.from("cvs").remove([storagePath]);
+  }
+
+  const { error: deleteError } = await supabase
+    .from("candidates")
+    .delete()
+    .eq("id", candidateId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/candidates");
+  revalidatePath(`/admin/candidates/${candidateId}`);
+
+  return { success: true, source: "supabase" };
+}
