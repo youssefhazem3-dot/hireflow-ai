@@ -50,6 +50,15 @@ CREATE INDEX idx_candidates_position ON candidates(position);
 CREATE INDEX idx_candidate_analysis_candidate_id ON candidate_analysis(candidate_id);
 CREATE INDEX idx_candidate_logs_candidate_id ON candidate_logs(candidate_id);
 
+-- RLS is enabled because candidates include private contact and CV data.
+-- The app accesses these tables only through server-side Next.js routes using
+-- the Supabase service role key, which bypasses RLS. No public table policies
+-- are needed for this MVP.
+ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE candidates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE candidate_analysis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE candidate_logs ENABLE ROW LEVEL SECURITY;
+
 INSERT INTO jobs (title, description, required_skills, experience_level)
 VALUES
   (

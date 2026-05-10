@@ -58,10 +58,11 @@ The app runs with demo data by default. To connect real services:
 
 1. Copy `.env.example` to `.env.local`.
 2. Create a Supabase project and run `database/schema.sql`.
-3. Create a Supabase Storage bucket named `cvs`.
-4. Add Supabase and OpenAI keys to `.env.local`.
-5. Import n8n workflows from `/workflows`.
-6. Add the n8n webhook URLs to `.env.local`.
+3. If tables already exist, run `database/rls.sql` to enable Row Level Security.
+4. Create a Supabase Storage bucket named `cvs`.
+5. Add Supabase and OpenAI keys to `.env.local`.
+6. Import n8n workflows from `/workflows`.
+7. Add the n8n webhook URLs to `.env.local`.
 
 ## Shared Candidate Persistence
 
@@ -82,6 +83,13 @@ OPENAI_API_KEY=
 After Supabase is connected, `/admin` and `/admin/candidates` read fresh database
 records on every request, so applications submitted by one person appear for
 other recruiters and browsers.
+
+## Row Level Security
+
+Run `database/rls.sql` in the Supabase SQL Editor after creating the tables.
+RLS is enabled on the application tables, and the app still works because all
+database access happens through server-side Next.js routes using
+`SUPABASE_SERVICE_ROLE_KEY`.
 
 ## Environment Variables
 
